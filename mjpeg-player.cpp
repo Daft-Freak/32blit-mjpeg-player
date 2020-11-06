@@ -65,9 +65,9 @@ void init()
     profilerAudReadProbe = profiler.AddProbe("Audio Read", 300);
 #endif
 
-    fileBrowser.setExtensions({".avi"});
-    fileBrowser.setDisplayRect(blit::Rect(5, 5, blit::screen.bounds.w - 10, blit::screen.bounds.h - 10));
-    fileBrowser.setOnFileOpen(openFile);
+    fileBrowser.set_extensions({".avi"});
+    fileBrowser.set_display_rect(blit::Rect(0, 0, blit::screen.bounds.w, blit::screen.bounds.h));
+    fileBrowser.set_on_file_open(openFile);
     fileBrowser.init();
 }
 
