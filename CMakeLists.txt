@@ -16,3 +16,4 @@ blit_executable(mjpeg-player
 )
 
 blit_assets_yaml(mjpeg-player assets.yml)
+blit_metadata(mjpeg-player metadata.yml)
