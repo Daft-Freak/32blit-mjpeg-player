@@ -448,8 +448,8 @@ void AVIFile::audioCallback()
     {
         if(dataSize[curAudioBuf])
         {
+            // recover from underrun
             endSample = audioBuf[curAudioBuf] + dataSize[curAudioBuf];
-            blit::debug("recovered\n");
         }
         else
         {
@@ -477,8 +477,9 @@ void AVIFile::audioCallback()
         {
             currentSample = audioBuf[curAudioBuf];
             endSample = currentSample + dataSize[curAudioBuf];
-            if(currentSample == endSample)
-                blit::debug("underrun!\n");
+
+            // if(currentSample == endSample)
+            // no more samples available - underrun
         }
     }
 
