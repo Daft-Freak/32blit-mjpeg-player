@@ -1,19 +1,30 @@
-cmake_minimum_required(VERSION 3.8.0)
+# Basic parameters; check that these match your project / environment
+cmake_minimum_required(VERSION 3.8)
+
 project(mjpeg-player)
 set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
-
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-
-include(${32BLIT_PATH}/32blit.cmake)
-
-#add_definitions("-DPROFILER")
-
-blit_executable(mjpeg-player
+set(PROJECT_SOURCE
     avi-file.cpp
     control-icons.cpp
     file-browser.cpp
     mjpeg-player.cpp
 )
 
-blit_assets_yaml(mjpeg-player assets.yml)
-blit_metadata(mjpeg-player metadata.yml)
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+
+#add_definitions("-DPROFILER")
+
+# Build configuration; approach this with caution!
+if(MSVC)
+  add_compile_options("/W4" "/wd4244" "/wd4324")
+else()
+  add_compile_options("-Wall" "-Wextra" "-Wdouble-promotion")
+endif()
+if(NOT EXISTS ${32BLIT_PATH}/32blit.cmake)
+  message(FATAL_ERROR "Define location of 32Blit API with -D32BLIT_PATH=<path to 32blit.cmake>")
+endif()
+include (${32BLIT_PATH}/32blit.cmake)
+blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
+blit_assets_yaml (${PROJECT_NAME} assets.yml)
+blit_metadata (${PROJECT_NAME} metadata.yml)
+add_custom_target (flash DEPENDS ${PROJECT_NAME}.flash)

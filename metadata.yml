@@ -2,7 +2,7 @@ title: MJPEG Player
 description: Simple video player using MJPEG.
 author: Daft_Freak
 splash:
-  file: splash.png
+  file: assets/splash.png
 icon:
-  file: icon.png
+  file: assets/icon.png
 version: v0.3.0
