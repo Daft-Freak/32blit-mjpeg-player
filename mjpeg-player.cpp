@@ -70,6 +70,17 @@ void init()
     fileBrowser.set_display_rect(blit::Rect(0, 0, blit::screen.bounds.w, blit::screen.bounds.h));
     fileBrowser.set_on_file_open(openFile);
     fileBrowser.init();
+
+    auto launchPath = blit::get_launch_path();
+    if(launchPath)
+    {
+        std::string pathStr(launchPath);
+        auto pos = pathStr.find_last_of('/');
+        if(pos != std::string::npos)
+            fileBrowser.set_current_dir(pathStr.substr(0, pos));
+
+        openFile(launchPath);
+    }
 }
 
 void render(uint32_t time_ms)
