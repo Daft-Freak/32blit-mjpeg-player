@@ -7,6 +7,7 @@
 #define MINIMP3_ONLY_MP3
 #include "minimp3.h"
 
+#include "audio/audio.hpp"
 #include "engine/file.hpp"
 #include "graphics/jpeg.hpp"
 
@@ -96,8 +97,8 @@ public:
 private:
     bool parseHeaders(uint32_t offset, uint32_t len);
 
-    static void staticAudioCallback(void *arg);
-    void audioCallback();
+    static void staticAudioCallback(blit::AudioChannel &channel);
+    void audioCallback(blit::AudioChannel &channel);
 
     bool playing = false;
     bool decodedFirstFrame = false;

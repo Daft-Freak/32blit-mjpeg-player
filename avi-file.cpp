@@ -132,9 +132,8 @@ void AVIFile::play(int audioChannel)
         return;
 
     blit::channels[channel].waveforms = blit::Waveform::WAVE;
-    blit::channels[channel].volume = 0xFF;
-    blit::channels[channel].wave_callback_arg = this;
-    blit::channels[channel].callback_waveBufferRefresh = staticAudioCallback;
+    blit::channels[channel].user_data = this;
+    blit::channels[channel].wave_buffer_callback = staticAudioCallback;
 }
 
 void AVIFile::stop()
@@ -430,16 +429,16 @@ bool AVIFile::parseHeaders(uint32_t offset, uint32_t len)
     return true;
 }
 
-void AVIFile::staticAudioCallback(void *arg)
+void AVIFile::staticAudioCallback(blit::AudioChannel &channel)
 {
-    reinterpret_cast<AVIFile *>(arg)->audioCallback();
+    reinterpret_cast<AVIFile *>(channel.user_data)->audioCallback(channel);
 }
 
-void AVIFile::audioCallback()
+void AVIFile::audioCallback(blit::AudioChannel &channel)
 {
     if(!currentSample)
     {
-        blit::channels[channel].off();
+        channel.off();
         return;
     }
 
@@ -453,12 +452,12 @@ void AVIFile::audioCallback()
         }
         else
         {
-            memset(blit::channels[channel].wave_buffer, 0, 64 * sizeof(int16_t));
+            memset(channel.wave_buffer, 0, 64 * sizeof(int16_t));
             return;
         }
     }
 
-    auto out = blit::channels[channel].wave_buffer;
+    auto out = channel.wave_buffer;
 
     int i = 0;
     for(; i < 64 && currentSample != endSample; i++)
