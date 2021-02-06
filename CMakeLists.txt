@@ -1,5 +1,5 @@
 # Basic parameters; check that these match your project / environment
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 project(mjpeg-player)
 set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
@@ -7,6 +7,7 @@ set(PROJECT_SOURCE
     avi-file.cpp
     mjpeg-player.cpp
 )
+set(PROJECT_DISTRIBS LICENSE README.md)
 
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 
@@ -30,3 +31,9 @@ blit_metadata (${PROJECT_NAME} metadata.yml)
 target_link_libraries (${PROJECT_NAME} DUH)
 
 add_custom_target (flash DEPENDS ${PROJECT_NAME}.flash)
+
+# setup release packages
+install (FILES ${PROJECT_DISTRIBS} DESTINATION .)
+set (CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+set (CPACK_GENERATOR "ZIP" "TGZ")
+include (CPack) 
