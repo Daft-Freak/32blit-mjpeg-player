@@ -5,8 +5,6 @@ project(mjpeg-player)
 set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
 set(PROJECT_SOURCE
     avi-file.cpp
-    control-icons.cpp
-    file-browser.cpp
     mjpeg-player.cpp
 )
 
@@ -24,7 +22,11 @@ if(NOT EXISTS ${32BLIT_PATH}/32blit.cmake)
   message(FATAL_ERROR "Define location of 32Blit API with -D32BLIT_PATH=<path to 32blit.cmake>")
 endif()
 include (${32BLIT_PATH}/32blit.cmake)
+add_subdirectory(DUH)
+
 blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
 blit_assets_yaml (${PROJECT_NAME} assets.yml)
 blit_metadata (${PROJECT_NAME} metadata.yml)
+target_link_libraries (${PROJECT_NAME} DUH)
+
 add_custom_target (flash DEPENDS ${PROJECT_NAME}.flash)

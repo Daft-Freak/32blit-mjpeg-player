@@ -31,7 +31,7 @@ ffmpeg -i 2020-02-19\ 12-14-08.mkv -vcodec mjpeg -q:v 2 -pix_fmt yuvj420p -vf sc
 */
 
 const blit::Font tallFont(asset_tall_font);
-FileBrowser fileBrowser(tallFont);
+duh::FileBrowser fileBrowser(tallFont);
 std::string fileToLoad;
 bool renderedLoadMessage = false;
 
