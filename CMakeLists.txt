@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(mjpeg-player)
-set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
+
 set(PROJECT_SOURCE
     avi-file.cpp
     mjpeg-player.cpp
@@ -19,10 +19,8 @@ if(MSVC)
 else()
   add_compile_options("-Wall" "-Wextra" "-Wdouble-promotion")
 endif()
-if(NOT EXISTS ${32BLIT_PATH}/32blit.cmake)
-  message(FATAL_ERROR "Define location of 32Blit API with -D32BLIT_PATH=<path to 32blit.cmake>")
-endif()
-include (${32BLIT_PATH}/32blit.cmake)
+
+find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk)
 add_subdirectory(DUH)
 
 blit_executable (${PROJECT_NAME} ${PROJECT_SOURCE})
