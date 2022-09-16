@@ -161,7 +161,7 @@ void AVIFile::update(uint32_t time)
 
     // use audio playback as timer if possible
     if(audioFormat != AudioFormat::None)
-        time = ((bufferedSamples + blit::channels[channel].wave_buf_pos) * 1000) / 22050;
+        time = (uint64_t(bufferedSamples + blit::channels[channel].wave_buf_pos) * 1000) / 22050;
     else
         time -= startTime;
 

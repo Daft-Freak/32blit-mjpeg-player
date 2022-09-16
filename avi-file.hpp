@@ -122,7 +122,7 @@ private:
     int dataSize[2]{};
     int curAudioBuf = 0;
 
-    int bufferedSamples = 0;
+    uint32_t bufferedSamples = 0;
 
     mp3dec_t mp3dec;
 };
