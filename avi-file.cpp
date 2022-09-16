@@ -100,6 +100,9 @@ bool AVIFile::load(std::string filename)
 
                 idxOff += 16;
             }
+
+            for(auto &stream : streams)
+                stream.curOffset = frameDataOffset + stream.frameOffsets[0];
         }
 
         offset += 8 + chunk.len;
@@ -185,8 +188,7 @@ void AVIFile::update(uint32_t time)
                 nextFrameTime = ((stream.curFrame + 1) * mainHead.usPerFrame) / 1000;
             }
 
-            auto offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
-            auto chunk = readChunk(file, offset);
+            auto chunk = readChunk(file, stream.curOffset);
 
             if(chunk.len == 0)
                 continue;
@@ -196,7 +198,7 @@ void AVIFile::update(uint32_t time)
 #ifdef PROFILER
             profilerVidReadProbe->start();
 #endif
-            file.read(offset + 8, chunk.len, (char *)buf);
+            file.read(stream.curOffset + 8, chunk.len, (char *)buf);
 
 #ifdef PROFILER
             profilerVidReadProbe->store_elapsed_us();
@@ -235,21 +237,19 @@ void AVIFile::update(uint32_t time)
                 profilerAudReadProbe->start();
 #endif
 
-                auto offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
-                auto chunk = readChunk(file, offset);
+                auto chunk = readChunk(file, stream.curOffset);
 
                 if(audioFormat == AudioFormat::PCM)
                 {
                     // raw data
                     while(dataSize[i] + chunk.len / 2 < audioBufSize)
                     {
-                        file.read(offset + 8, chunk.len, reinterpret_cast<char *>(audioBuf[i] + dataSize[i]));
+                        file.read(stream.curOffset + 8, chunk.len, reinterpret_cast<char *>(audioBuf[i] + dataSize[i]));
                         dataSize[i] += chunk.len / 2;
                         if(!nextFrame(stream))
                             break;
 
-                        offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
-                        chunk = readChunk(file, offset);
+                        chunk = readChunk(file, stream.curOffset);
                     }
                 }
                 else if(audioFormat == AudioFormat::MP3)
@@ -258,7 +258,7 @@ void AVIFile::update(uint32_t time)
                     while(dataSize[i] + MINIMP3_MAX_SAMPLES_PER_FRAME / 2 < audioBufSize)
                     {
                         auto buf = new uint8_t[chunk.len];
-                        file.read(offset + 8, chunk.len, reinterpret_cast<char *>(buf));
+                        file.read(stream.curOffset + 8, chunk.len, reinterpret_cast<char *>(buf));
                         mp3dec_frame_info_t info;
                         dataSize[i] += mp3dec_decode_frame(&mp3dec, buf, chunk.len, audioBuf[i] + dataSize[i], &info);
 
@@ -267,8 +267,7 @@ void AVIFile::update(uint32_t time)
                         if(!nextFrame(stream))
                             break;
 
-                        offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
-                        chunk = readChunk(file, offset);
+                        chunk = readChunk(file, stream.curOffset);
                     }
                 }
 
@@ -443,7 +442,12 @@ bool AVIFile::nextFrame(Stream &stream)
 
     stream.curFrame++;
 
-    return stream.curFrame < stream.length;
+    if(stream.curFrame == stream.length)
+        return false;
+
+    stream.curOffset = frameDataOffset + stream.frameOffsets[stream.curFrame];
+
+    return true;
 }
 
 void AVIFile::staticAudioCallback(blit::AudioChannel &channel)

@@ -71,6 +71,7 @@ struct Stream
     uint32_t length;
 
     uint32_t curFrame = 0;
+    uint32_t curOffset = 0;
     std::vector<uint32_t> frameOffsets;
 };
 
