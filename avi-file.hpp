@@ -72,7 +72,7 @@ struct Stream
 
     uint32_t curFrame = 0;
     uint32_t curOffset = 0;
-    std::vector<uint32_t> frameOffsets;
+    std::vector<uint16_t> frameOffsets;
 };
 
 enum class AudioFormat

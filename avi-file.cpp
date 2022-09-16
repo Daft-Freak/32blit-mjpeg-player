@@ -1,4 +1,4 @@
-
+#include <cassert>
 #include <cinttypes>
 #include <cstring>
 
@@ -87,6 +87,9 @@ bool AVIFile::load(std::string filename)
             for(auto &stream : streams)
                 stream.frameOffsets.reserve(stream.length);
 
+            std::vector<uint32_t> streamOffsets;
+            streamOffsets.resize(streams.size());
+
             uint32_t idxOff = offset + 8;
             auto end = offset + 8 + chunk.len;
             while(idxOff < end)
@@ -96,13 +99,21 @@ bool AVIFile::load(std::string filename)
                 file.read(idxOff + 4, 12, reinterpret_cast<char *>(data));
 
                 int streamNum = (buf[0] - '0') * 10 + (buf[1] - '0');
-                streams[streamNum].frameOffsets.push_back(data[1]);
+
+                auto &frameOffsets = streams[streamNum].frameOffsets;
+
+                auto relOff = data[1] - streamOffsets[streamNum];
+                assert((relOff & 1) == 0); // aligned
+                assert(relOff < 0x20000);
+                frameOffsets.push_back(relOff / 2);
+
+                streamOffsets[streamNum] = data[1];
 
                 idxOff += 16;
             }
 
             for(auto &stream : streams)
-                stream.curOffset = frameDataOffset + stream.frameOffsets[0];
+                stream.curOffset = frameDataOffset + stream.frameOffsets[0] * 2;
         }
 
         offset += 8 + chunk.len;
@@ -445,7 +456,7 @@ bool AVIFile::nextFrame(Stream &stream)
     if(stream.curFrame == stream.length)
         return false;
 
-    stream.curOffset = frameDataOffset + stream.frameOffsets[stream.curFrame];
+    stream.curOffset += stream.frameOffsets[stream.curFrame] * 2;
 
     return true;
 }
