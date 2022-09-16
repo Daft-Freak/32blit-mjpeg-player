@@ -83,6 +83,10 @@ bool AVIFile::load(std::string filename)
         }
         else if(idStr == "idx1")
         {
+            // reserve vectors
+            for(auto &stream : streams)
+                stream.frameOffsets.reserve(stream.length);
+
             uint32_t idxOff = offset + 8;
             auto end = offset + 8 + chunk.len;
             while(idxOff < end)
