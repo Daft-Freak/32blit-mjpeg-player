@@ -250,13 +250,15 @@ void AVIFile::update(uint32_t time)
 
                 auto chunk = readChunk(file, stream.curOffset);
 
+                int read = 0;
+
                 if(audioFormat == AudioFormat::PCM)
                 {
                     // raw data
-                    while(dataSize[i] + chunk.len / 2 < audioBufSize)
+                    while(read + chunk.len / 2 < audioBufSize)
                     {
-                        file.read(stream.curOffset + 8, chunk.len, reinterpret_cast<char *>(audioBuf[i] + dataSize[i]));
-                        dataSize[i] += chunk.len / 2;
+                        file.read(stream.curOffset + 8, chunk.len, reinterpret_cast<char *>(audioBuf[i] + read));
+                        read += chunk.len / 2;
                         if(!nextFrame(stream))
                             break;
 
@@ -266,12 +268,12 @@ void AVIFile::update(uint32_t time)
                 else if(audioFormat == AudioFormat::MP3)
                 {
                     // guess a bit how much data we can decode
-                    while(dataSize[i] + MINIMP3_MAX_SAMPLES_PER_FRAME / 2 < audioBufSize)
+                    while(read + MINIMP3_MAX_SAMPLES_PER_FRAME / 2 < audioBufSize)
                     {
                         auto buf = new uint8_t[chunk.len];
                         file.read(stream.curOffset + 8, chunk.len, reinterpret_cast<char *>(buf));
                         mp3dec_frame_info_t info;
-                        dataSize[i] += mp3dec_decode_frame(&mp3dec, buf, chunk.len, audioBuf[i] + dataSize[i], &info);
+                        read += mp3dec_decode_frame(&mp3dec, buf, chunk.len, audioBuf[i] + read, &info);
 
                         delete[] buf;
 
@@ -281,6 +283,8 @@ void AVIFile::update(uint32_t time)
                         chunk = readChunk(file, stream.curOffset);
                     }
                 }
+
+                dataSize[i] = read;
 
                 //printf("refilled %i %i %i %i\n", i, dataSize[i], stream.curFrame, stream.length);
 #ifdef PROFILER
