@@ -120,12 +120,10 @@ void update(uint32_t time_ms)
     blit::ScopedProfilerProbe scopedProbe(profilerUpdateProbe);
 #endif
 
-    static uint32_t lastButtonState = 0;
-
     if(avi.getPlaying())
     {
         // b released
-        if((lastButtonState & blit::Button::B) && !(blit::buttons & blit::Button::B))
+        if(blit::buttons.released & blit::Button::B)
             avi.stop();
 
         avi.update(time_ms);
@@ -140,6 +138,4 @@ void update(uint32_t time_ms)
             avi.play(0);
         fileToLoad = "";
     }
-
-    lastButtonState = blit::buttons;
 }
