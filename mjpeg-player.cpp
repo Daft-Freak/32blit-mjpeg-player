@@ -49,21 +49,21 @@ void init()
     blit::set_screen_mode(blit::ScreenMode::hires);
 
 #ifdef PROFILER
-    profiler.SetDisplaySize(blit::screen.bounds.w, blit::screen.bounds.h);
-    profiler.SetRows(5);
-    profiler.SetAlpha(200);
-    profiler.DisplayHistory(true);
+    profiler.set_display_size(blit::screen.bounds.w, blit::screen.bounds.h);
+    profiler.set_rows(5);
+    profiler.set_alpha(200);
+    profiler.display_history(true);
 
-    profiler.SetupGraphElement(blit::Profiler::dmCur, true, true, blit::Pen(0, 255, 0));
-    profiler.SetupGraphElement(blit::Profiler::dmAvg, true, true, blit::Pen(0, 255, 255));
-    profiler.SetupGraphElement(blit::Profiler::dmMax, true, true, blit::Pen(255, 0, 0));
-    profiler.SetupGraphElement(blit::Profiler::dmMin, true, true, blit::Pen(255, 255, 0));
+    profiler.setup_graph_element(blit::Profiler::dmCur, true, true, blit::Pen(0, 255, 0));
+    profiler.setup_graph_element(blit::Profiler::dmAvg, true, true, blit::Pen(0, 255, 255));
+    profiler.setup_graph_element(blit::Profiler::dmMax, true, true, blit::Pen(255, 0, 0));
+    profiler.setup_graph_element(blit::Profiler::dmMin, true, true, blit::Pen(255, 255, 0));
 
-    profilerRenderProbe = profiler.AddProbe("Render", 300);
-    profilerUpdateProbe = profiler.AddProbe("Update", 300);
-    profilerVidReadProbe = profiler.AddProbe("JPEG Read", 300);
-    profilerVidDecProbe = profiler.AddProbe("JPEG Decode", 300);
-    profilerAudReadProbe = profiler.AddProbe("Audio Read", 300);
+    profilerRenderProbe = profiler.add_probe("Render", 300);
+    profilerUpdateProbe = profiler.add_probe("Update", 300);
+    profilerVidReadProbe = profiler.add_probe("JPEG Read", 300);
+    profilerVidDecProbe = profiler.add_probe("JPEG Decode", 300);
+    profilerAudReadProbe = profiler.add_probe("Audio Read", 300);
 #endif
 
     fileBrowser.set_extensions({".avi"});
@@ -86,7 +86,7 @@ void init()
 void render(uint32_t time_ms)
 {
 #ifdef PROFILER
-    profilerRenderProbe->Start();
+    profilerRenderProbe->start();
 #endif
 
     blit::screen.alpha = 0xFF;
@@ -107,16 +107,16 @@ void render(uint32_t time_ms)
         fileBrowser.render();
 
 #ifdef PROFILER
-    profilerRenderProbe->StoreElapsedUs();
+    profilerRenderProbe->store_elapsed_us();
 
-    profiler.DisplayProbeOverlay(1);
+    profiler.display_probe_overlay(1);
 #endif
 }
 
 void update(uint32_t time_ms)
 {
 #ifdef PROFILER
-    profiler.SetGraphTime(profilerUpdateProbe->ElapsedMetrics().uMaxElapsedUs);
+    profiler.set_graph_time(profilerUpdateProbe->elapsed_metrics().uMaxElapsedUs);
     blit::ScopedProfilerProbe scopedProbe(profilerUpdateProbe);
 #endif
 

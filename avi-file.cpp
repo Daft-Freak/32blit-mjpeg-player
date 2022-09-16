@@ -194,16 +194,16 @@ void AVIFile::update(uint32_t time)
             auto buf = new uint8_t[chunk.len];
 
 #ifdef PROFILER
-            profilerVidReadProbe->Start();
+            profilerVidReadProbe->start();
 #endif
             file.read(offset + 8, chunk.len, (char *)buf);
 
 #ifdef PROFILER
-            profilerVidReadProbe->StoreElapsedUs();
+            profilerVidReadProbe->store_elapsed_us();
 #endif
 
 #ifdef PROFILER
-            profilerVidDecProbe->Start();
+            profilerVidDecProbe->start();
 #endif
 
             if(jpeg.data)
@@ -211,7 +211,7 @@ void AVIFile::update(uint32_t time)
             jpeg = blit::decode_jpeg_buffer(buf, chunk.len);
 
 #ifdef PROFILER
-            profilerVidDecProbe->StoreElapsedUs();
+            profilerVidDecProbe->store_elapsed_us();
 #endif
 
             delete[] buf;
@@ -232,7 +232,7 @@ void AVIFile::update(uint32_t time)
                 }
 
 #ifdef PROFILER
-                profilerAudReadProbe->Start();
+                profilerAudReadProbe->start();
 #endif
 
                 auto offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
@@ -271,7 +271,7 @@ void AVIFile::update(uint32_t time)
 
                 //printf("refilled %i %i %i %i\n", i, dataSize[i], stream.curFrame, stream.length);
 #ifdef PROFILER
-                profilerAudReadProbe->StoreElapsedUs();
+                profilerAudReadProbe->store_elapsed_us();
 #endif
                 if(!currentSample && dataSize[i])
                 {
