@@ -120,6 +120,10 @@ void update(uint32_t time_ms)
     blit::ScopedProfilerProbe scopedProbe(profilerUpdateProbe);
 #endif
 
+    // avoid catch-up updates
+    if(blit::now() - time_ms > 20)
+        return;
+
     if(avi.getPlaying())
     {
         // b released
