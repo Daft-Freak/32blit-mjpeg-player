@@ -181,10 +181,10 @@ void AVIFile::update(uint32_t time)
             // skip frames
             while(nextFrameTime <= time && stream.curFrame < stream.length)
             {
-                stream.curFrame++;
+                nextFrame(stream);
                 nextFrameTime = ((stream.curFrame + 1) * mainHead.usPerFrame) / 1000;
             }
-    
+
             auto offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
             auto chunk = readChunk(file, offset);
 
@@ -241,11 +241,12 @@ void AVIFile::update(uint32_t time)
                 if(audioFormat == AudioFormat::PCM)
                 {
                     // raw data
-                    while(dataSize[i] + chunk.len / 2 < audioBufSize && stream.curFrame < stream.length)
+                    while(dataSize[i] + chunk.len / 2 < audioBufSize)
                     {
                         file.read(offset + 8, chunk.len, reinterpret_cast<char *>(audioBuf[i] + dataSize[i]));
                         dataSize[i] += chunk.len / 2;
-                        stream.curFrame++;
+                        if(!nextFrame(stream))
+                            break;
 
                         offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
                         chunk = readChunk(file, offset);
@@ -254,7 +255,7 @@ void AVIFile::update(uint32_t time)
                 else if(audioFormat == AudioFormat::MP3)
                 {
                     // guess a bit how much data we can decode
-                    while(dataSize[i] + MINIMP3_MAX_SAMPLES_PER_FRAME / 2 < audioBufSize && stream.curFrame < stream.length)
+                    while(dataSize[i] + MINIMP3_MAX_SAMPLES_PER_FRAME / 2 < audioBufSize)
                     {
                         auto buf = new uint8_t[chunk.len];
                         file.read(offset + 8, chunk.len, reinterpret_cast<char *>(buf));
@@ -263,7 +264,9 @@ void AVIFile::update(uint32_t time)
 
                         delete[] buf;
 
-                        stream.curFrame++;
+                        if(!nextFrame(stream))
+                            break;
+
                         offset = frameDataOffset + stream.frameOffsets[stream.curFrame];
                         chunk = readChunk(file, offset);
                     }
@@ -431,6 +434,16 @@ bool AVIFile::parseHeaders(uint32_t offset, uint32_t len)
     }
 
     return true;
+}
+
+bool AVIFile::nextFrame(Stream &stream)
+{
+    if(stream.curFrame == stream.length)
+        return false;
+
+    stream.curFrame++;
+
+    return stream.curFrame < stream.length;
 }
 
 void AVIFile::staticAudioCallback(blit::AudioChannel &channel)

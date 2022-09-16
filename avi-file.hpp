@@ -97,6 +97,8 @@ public:
 private:
     bool parseHeaders(uint32_t offset, uint32_t len);
 
+    bool nextFrame(Stream &stream);
+
     static void staticAudioCallback(blit::AudioChannel &channel);
     void audioCallback(blit::AudioChannel &channel);
 
