@@ -116,10 +116,11 @@ private:
     // audio bits
     int channel = -1;
 
+    static const int numAudioBufs = 2;
     static const int audioBufSize = 4096;
-    int16_t audioBuf[2][audioBufSize];
+    int16_t audioBuf[numAudioBufs][audioBufSize];
     int16_t *currentSample = nullptr, *endSample = nullptr;
-    int dataSize[2]{};
+    int dataSize[numAudioBufs]{};
     int curAudioBuf = 0;
 
     uint32_t bufferedSamples = 0;

@@ -109,7 +109,7 @@ bool AVIFile::load(std::string filename)
 
     if(audioFormat != AudioFormat::None)
     {
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < numAudioBufs; i++)
             dataSize[i] = 0;
 
         if(audioFormat == AudioFormat::MP3)
@@ -220,7 +220,7 @@ void AVIFile::update(uint32_t time)
         else if(stream.type == StreamType::Audio)
         {
             // assumes 22050Hz mono
-            for(int i = 0; i < 2; i++)
+            for(int i = 0; i < numAudioBufs; i++)
             {
                 if(dataSize[i])
                     continue;
@@ -472,7 +472,7 @@ void AVIFile::audioCallback(blit::AudioChannel &channel)
     if(currentSample == endSample)
     {
         dataSize[curAudioBuf] = 0;
-        curAudioBuf = ++curAudioBuf % 2;
+        curAudioBuf = ++curAudioBuf % numAudioBufs;
 
         if(dataSize[curAudioBuf] == -1) // EOF
             currentSample = endSample = nullptr;
