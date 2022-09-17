@@ -481,13 +481,16 @@ void AVIFile::audioCallback(blit::AudioChannel &channel)
     // there was no buffer last time
     if(currentSample == endSample)
     {
-        if(dataSize[curAudioBuf])
+        if(dataSize[curAudioBuf] > 0)
         {
             // recover from underrun
             endSample = audioBuf[curAudioBuf] + dataSize[curAudioBuf];
         }
         else
         {
+            if(dataSize[curAudioBuf] == -1) // EOF
+                channel.off();
+
             memset(channel.wave_buffer, 0, 64 * sizeof(int16_t));
             return;
         }
